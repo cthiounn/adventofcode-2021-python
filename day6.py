@@ -1,6 +1,5 @@
-import re
-m= lambda s: re.findall(r'\d+',s)
-
+from collections import Counter
+from collections import defaultdict
 
 with open('data/my_input/6.in') as f:
 #with open('data/test/6.test') as f:
@@ -24,8 +23,29 @@ def part1(vl,days):
     #print(lanterns)
     return len(lanterns)
 
-def part2(vl):
-    return 0
+def part2(vl,days):
+    lanterns =list(map(int,vl[0].split(",")))
+    d=(dict(Counter(lanterns)))
+    for i in range(days):
+        newdict=defaultdict()
+        for e in d.items():
+            k,v = e
+            if k ==0:
+                if 6 in newdict:
+                    newdict[6]+=v
+                else:
+                    newdict[6]=v
+                if 8 in newdict:
+                    newdict[8]+=v
+                else:
+                    newdict[8]=v
+            else:
+                if k-1 in newdict:
+                    newdict[k-1]+=v
+                else:
+                    newdict[k-1]=v
+        d=newdict
+    return sum([v for k,v in d.items()])
 
-print(part1(lines,256))
-print(part2(lines))
+print(part1(lines,80))
+print(part2(lines,256))
