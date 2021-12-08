@@ -27,23 +27,14 @@ def part2(vl,days):
     lanterns =list(map(int,vl[0].split(",")))
     d=(dict(Counter(lanterns)))
     for i in range(days):
-        newdict=defaultdict()
+        newdict=defaultdict(int)
         for e in d.items():
             k,v = e
             if k ==0:
-                if 6 in newdict:
-                    newdict[6]+=v
-                else:
-                    newdict[6]=v
-                if 8 in newdict:
-                    newdict[8]+=v
-                else:
-                    newdict[8]=v
+                newdict[6]+=v
+                newdict[8]+=v
             else:
-                if k-1 in newdict:
-                    newdict[k-1]+=v
-                else:
-                    newdict[k-1]=v
+                newdict[k-1]+=v
         d=newdict
     return sum([v for k,v in d.items()])
 
