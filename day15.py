@@ -1,7 +1,6 @@
-import re
+from collections import deque
 from collections import defaultdict
 
-m= lambda s: re.findall(r'\d+',s)
 with open('data/test/15.test') as f:
     testlines = [  line.strip() for line in f]
 with open('data/my_input/15.in') as f:
@@ -20,12 +19,12 @@ def part1(v):
     startpos=((0,0),0)
     endpos=(len(v)-1,len(v[0])-1)
 
-    pointtoprocess=[]
+    pointtoprocess=deque()
     pointtoprocess.append(startpos)
     path=[]
     visited=set()
     while pointtoprocess:
-        point=pointtoprocess.pop()
+        point=pointtoprocess.popleft()
         skip=False
         x,y=point[0]
         weight=point[1]
