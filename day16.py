@@ -1,3 +1,4 @@
+from collections import deque
 import numpy as np
 with open('data/test/16.test') as f:
     testlines = [  line.strip() for line in f]
@@ -23,6 +24,8 @@ CODE={
 "E" : "1110",
 "F" : "1111",
 }
+
+
 
 def readst(st,i=0):
     li=[]
@@ -88,40 +91,94 @@ def applyoperation(o,v):
         return v[0]==v[1]
     return 0
 
-def evaluate(v):
-    if len(v)==1:
-        return v[1]
-    i=0
-    operation=""
-    p=[]
-    ve=[]
-    while i< len(v):
-        print(p)
-        token=v[i]
-        p.append(token)
-        if token in {"EQ","LT","GT"} and v[i+1].isnumeric() and v[i+2].isnumeric():
-            li=[]
-            li.append(v[i+1])
-            li.append(v[i+2])
-            p.append(applyoperation(token, li))
-            i+=3
-        elif type(token)==str and token not in {"EQ","LT","GT"} :
-            if len(operation)==0:
-                operation=token
-                onevalue=True
-                j=i
-                i+=1
-            elif onevalue:
-                p=p[:j]
-                p.append(applyoperation(operation, ve))
-                i+=1
-            else:
-                i+=1
-        elif type(token)==int:
-            ve.append(token)
-            i+=1
-        else:
-            i+=1
+# def resolveeqgtlt(li):
+#     for i,j in enumerate(li):
+#         if j in {"EQ","GT","LT"} and i+2<len(li) and type(li[i+1])==int and type(li[i+2])==int:
+#             if j=="GT":
+#                 return li[:i] +li[i+1]>=li[i+2] +li[i+2:]
+#             elif j=="LT":
+#                 return li[:i] +li[i+1]<=li[i+2] +li[i+2:]
+#             elif j=="EQ":
+#                 return li[:i] +li[i+1]==li[i+2] +li[i+2:]
+#     return li
+
+# def resolvesumprod(li):
+#     countmode=False
+#     count=0
+#     countmul=1
+#     sum=0
+#     l=[]
+#     resume=0
+#     for i,j in enumerate(li):
+        
+#         if j in {"SUM","PROD"}:
+#             countmode=True
+#             if j =="SUM":
+#                 sum=1
+#             resume=i
+#         else:
+#             if countmode:
+#                 if type(j)==int:
+#                     count+=j
+#                     countmul*=j
+#                 else:
+#                     if sum==1:
+#                         print("here")
+#                         return li[:resume]+ [count]+li[i+1:]
+#                     else:
+#                         return li[:resume]+[countmul]+li[i+1:]
+#             else:
+#                 l.append(j)
+#     if countmode:
+#         if sum:
+#             return l+ [count]
+        
+#         else:
+#             return l+ [countmul]
+#     return li
+
+
+# def resolve(li):
+#     while len(li)!=1:
+#         li=resolvesumprod(li)
+#         li=resolveeqgtlt(li)
+#     return li[0]
+
+
+# def evaluate(v):
+#     if len(v)==1:
+#         return v[1]
+#     i=0
+#     operation=""
+#     p=[]
+#     ve=[]
+#     while i< len(v):
+#         print(p)
+#         token=v[i]
+#         p.append(token)
+#         if token in {"EQ","LT","GT"} and v[i+1].isnumeric() and v[i+2].isnumeric():
+#             li=[]
+#             li.append(v[i+1])
+#             li.append(v[i+2])
+#             p.append(applyoperation(token, li))
+#             i+=3
+#         elif type(token)==str and token not in {"EQ","LT","GT"} :
+#             if len(operation)==0:
+#                 operation=token
+#                 onevalue=True
+#                 j=i
+#                 i+=1
+#             elif onevalue:
+#                 p=p[:j]
+#                 p.append(applyoperation(operation, ve))
+#                 i+=1
+#             else:
+#                 i+=1
+#         elif type(token)==int:
+#             ve.append(token)
+#             i+=1
+#         else:
+#             i+=1
 
 # def evaluate(v):
 #     if len(v)==1:
@@ -174,6 +231,36 @@ def evaluate(v):
 #     print(li)
 #     return count
 
+# def resolve(ve):
+#     v=[]
+#     a=[]
+#     for i,j in enumerate(ve[::-1]):
+#         print(a)
+#         if type(j)==int:
+#             v.append(j)
+#         elif j in {"EQ","LT","GT"}:
+#             aa=a.pop()
+#             bb=a.pop()
+#             l=[]
+#             l.append(bb)
+#             l.append(aa)
+#             x=applyoperation(j,l )
+#             a.append(x)
+#             v=[]
+#         else:
+#             a.append(applyoperation(j,v))
+#             v=[]
+    # return a[0]
+
+def resolve(ve):
+    l=deque(ve)
+    a=[]
+    while l:
+        token=l.popleft()
+        if token in {"EQ","LT","GT"}:
+            a.append(token)
+
+
 def part2(v):
     st=""
     operation=""
@@ -206,9 +293,8 @@ def part2(v):
             ve.append(operation)
         elif b==4:
             ve.append(c)
-    
-    print(evaluate(ve))
-    return evaluate(ve)
+    print(resolve(ve))
+    return resolve(ve)
 
 #part1(["D2FE28"])
 #part1(["38006F45291200"])
@@ -227,4 +313,4 @@ part1(lines)
 # part2(["F600BC2D8F"])
 # part2(["9C005AC2F8F0"])
 part2(["9C0141080250320F1802104A08"])
-# part2(lines)
+#part2(lines)
