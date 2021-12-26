@@ -1,6 +1,12 @@
+from functools import lru_cache
+from functools import wraps
 from collections import defaultdict
 from collections import deque
+
 import copy
+with open('data/test/23.test') as f:
+    testlines = [  line.strip() for line in f]
+
 with open('data/my_input/23.in') as f:
     lines = [  line.strip() for line in f]
 
@@ -10,29 +16,26 @@ def test_sorted(d):
 COST_MOVE={'A':1,'B':10,'C':100,'D':1000}
 
 def reachable_places(start,d):
-    reachable=[]
+    reachable=set()
     queue=deque()
     queue.append(start)
     visited=set()
     while queue:
         node=queue.popleft()
-        if node in visited:
-            continue
-        else:
-            visited.add(node)
-            x,y=node
-            for i in range(-1,2):
-                for j in range(-1,2):
-                    if i==j==0:
-                        continue
-                    elif abs(i)+abs(j)>1:
-                        continue
-                    else:
-                        if (x+i,y+j) in d and d[(x+i,y+j)]==0:
-                            reachable.append((x+i,y+j))
-                            if (x+i,y+j) not in visited:
-                                queue.append((x+i,y+j))
-    return set(reachable)
+        visited.add(node)
+        x,y=node
+        for i in range(-1,2):
+            for j in range(-1,2):
+                if i==j==0:
+                    continue
+                elif abs(i)+abs(j)>1:
+                    continue
+                else:
+                    if (x+i,y+j) in d and d[(x+i,y+j)]==0:
+                        reachable.add((x+i,y+j))
+                        if (x+i,y+j) not in visited:
+                            queue.append((x+i,y+j))
+    return reachable
 
 def get_frogs_from_pods(d):
     nd={k:v for k, v in d.items() if v in COST_MOVE.values() and k in SPAWN }
@@ -100,7 +103,6 @@ def read_dict(v):
 
 
 
-
 def move(d,c,m):
 
     li=[]
@@ -117,12 +119,14 @@ def move(d,c,m):
             #move outside
             (x,y),v=frog
             for _,(xt,yt) in enumerate(reachable_places((x,y), d)):
-                
-                dd=d.copy()
-                dd[(xt,yt)]=v
-                dd[(x,y)]=0
-                cc=c+v*(abs(x-xt)+abs(y-yt))
-                li.append((dd,cc,m+1))
+                if (xt,yt) in SPAWN:
+                    continue
+                else:
+                    dd=d.copy()
+                    dd[(xt,yt)]=v
+                    dd[(x,y)]=0
+                    cc=c+v*(abs(x-xt)+abs(y-yt))
+                    li.append((dd,cc,m+1))
     return li
 
 
@@ -145,7 +149,7 @@ def part1(v):
             sdn=string_representation(dn)
             if test_sorted(dn):
                 minscore=min(minscore,cn)
-            elif sdn in memo and memo[sdn]>=cn:
+            elif sdn in memo and memo[sdn]<=cn:
                 continue
             elif cn>=minscore:
                 continue
@@ -157,7 +161,7 @@ def part1(v):
         queue=[]
         for _,(dd,cc,mm) in enumerate(li):
             sdd=string_representation(dd)
-            if sdd in memo and memo[sdd]<cc:
+            if sdd in memo and memo[sdd]<=cc:
                 continue
             elif cc>=minscore:
                 continue
@@ -165,6 +169,7 @@ def part1(v):
                 continue
             else:
                 queue.append((dd,cc,mm))
+        queue=sorted(queue,key=lambda x: x[1])
 
     return minscore
 
@@ -229,4 +234,5 @@ def part2(v):
     return 0
 
 print(part1(lines))
+# print(part1(testlines))
 print(part2(lines))
