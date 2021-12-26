@@ -83,9 +83,10 @@ def part1(v):
 
 
 def part2(v):
-    return 0
+    
+    return max([evaluate(reduce_explode(add(i,j))) for _,i in enumerate(v) for _,j in enumerate(v) if i!=j ])
 
 print("part1 test output",part1(testlines))
 print("part1 my output",part1(lines))
-# print("part2 test output",part2(testlines))
-# print("part2 my output",part2(lines))
+print("part2 test output",part2(testlines))
+print("part2 my output",part2(lines))
