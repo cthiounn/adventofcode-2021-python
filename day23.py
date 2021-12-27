@@ -84,7 +84,7 @@ def string_representation(d):
                 st+='#'
             elif d[(i,j)]==0:
                 st+='.'
-        # st+='\n'
+        st+='\n'
     # print("----")
     # print(st)
     return st
@@ -119,7 +119,7 @@ def move(d,c,m):
             #move outside
             (x,y),v=frog
             for _,(xt,yt) in enumerate(reachable_places((x,y), d)):
-                if (xt,yt) in SPAWN:
+                if (xt,yt) in SPAWN or (xt,yt) in MAY_NOT_BE_OPTIMAL:
                     continue
                 else:
                     dd=d.copy()
@@ -142,7 +142,7 @@ def part1(v):
     queue.append((d,cost,0))
 
     while queue:
-        print(len(queue))
+        # print(len(queue))
         li=[]
         for _ , node in enumerate(queue):
             dn,cn,mn=node
@@ -230,6 +230,15 @@ def movefroghome(d,frog,nodecost,nummove):
     return d , nodecost +v*(abs(x-xtarget)+abs(y-ypos)) , nummove+1
 
 
+MAY_NOT_BE_OPTIMAL={
+    
+    (1,3),
+    (1,5),
+    (1,7),
+    (1,9),
+
+}
+
 SPAWN2={
     (5,3),
     (4,3),
@@ -268,7 +277,7 @@ def move2(d,c,m):
             #move outside
             (x,y),v=frog
             for _,(xt,yt) in enumerate(reachable_places((x,y), d)):
-                if (xt,yt) in SPAWN2:
+                if (xt,yt) in SPAWN2 or (xt,yt) in MAY_NOT_BE_OPTIMAL:
                     continue
                 else:
                     dd=d.copy()
@@ -297,7 +306,7 @@ def getfroghome2(d):
                         
         if (5,ypos) not in nd and (5,ypos) in list_of_reachables :
                 return ((x,y),v)
-        elif (5,ypos) in nd and nd[(5,ypos)]==v and (3,ypos) not in nd and (3,ypos) in list_of_reachables :
+        elif (5,ypos) in nd and nd[(5,ypos)]==v and (4,ypos) not in nd and (4,ypos) in list_of_reachables :
                 return ((x,y),v)
         elif (5,ypos) in nd and nd[(5,ypos)]==v and (4,ypos) in nd and nd[(4,ypos)]==v and (3,ypos) not in nd and (3,ypos) in list_of_reachables :
                 return ((x,y),v)
@@ -320,7 +329,7 @@ def movefroghome2(d,frog,nodecost,nummove):
         ypos=9
     
     nd={k:v for k, v in d.items() if v in COST_MOVE.values() }
-
+    xtarget=0
     if (5,ypos) not in nd and (5,ypos) in list_of_reachables :
         xtarget=5        
     elif (5,ypos) in nd and nd[(5,ypos)]==v and (4,ypos) not in nd and (4,ypos) in list_of_reachables :
@@ -329,6 +338,7 @@ def movefroghome2(d,frog,nodecost,nummove):
         xtarget=3        
     elif (5,ypos) in nd and nd[(5,ypos)]==v and (4,ypos) in nd and nd[(4,ypos)]==v and  (3,ypos) in nd and nd[(3,ypos)]==v and (2,ypos) not in nd and (2,ypos) in list_of_reachables :
         xtarget=2
+    
     d[(x,y)]=0
     d[(xtarget,ypos)]=v
     return d , nodecost +v*(abs(x-xtarget)+abs(y-ypos)) , nummove+1
@@ -382,19 +392,21 @@ def part2(v):
     #   ###D#B#A#C###
     d=read_dict(v)
     cost=0
-    minscore=50000
+    minscore=60000
     nummovemax=35
     memo=dict()
     queue = list()
     queue.append((d,cost,0))
 
     while queue:
-        print(len(queue))
+        # print(len(queue))
         li=[]
         for _ , node in enumerate(queue):
             dn,cn,mn=node
             sdn=string_representation(dn)
             if test_sorted2(dn):
+                # print(sdn)
+                # print(cn)
                 minscore=min(minscore,cn)
             elif sdn in memo and memo[sdn]<=cn:
                 continue
@@ -420,6 +432,6 @@ def part2(v):
 
     return minscore
 
-# print(part1(lines))
+print(part1(lines))
 # print(part1(testlines))
 print(part2(lines))
