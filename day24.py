@@ -5,79 +5,82 @@ with open('data/my_input/24.in') as f:
 
 @functools.lru_cache(maxsize=None)
 def runprog(mp,starti):
-    
-
     for jj in range(9,0,-1):
         d=dict()    
         d['x']=0
         d['y']=0
-        d['z']=int(mp)
+        d['z']=mp
         d['w']=jj
-        for i,j in enumerate(lines):
-            if i  < starti:
-                continue
+        for i,j in enumerate(lines[starti:]):
             op, v1,*v2 = j.split()
             if op=="inp":
-                # for jj in range(9,0,-1):
-                    # d[v1]=jj
-                    # st1=""
-                    # st1+=str(d['x'])+"-"
-                    # st1+=str(d['y'])+"-"
-                    # st1+="0-0-"
-                st1=str(d['z'])
-                    # st1+="0"
-                    #st1+=str(d['w'])
-
-                b, st2 =runprog(st1,i+1)
+                b, st2 =runprog(d['z'],starti+i+1)
                 if b:
-                    return True,jj+st2
+                    return True,str(jj)+st2
                 break
-            elif op=="mul":
+            else:
                 v2=v2[0]
                 if v2.lstrip('-').isnumeric():
-                    d[v1]*=int(v2)
+                    value=int(v2)
                 else:
-                    d[v1]*=d[v2]
-            elif op=="add":
-                v2=v2[0]
-
-                if v2.lstrip('-').isnumeric():
-                    d[v1]+=int(v2)
-                else:
-                    d[v1]+=d[v2]
-            elif op=="mod":
-                v2=v2[0]
-                
-                if v2.lstrip('-').isnumeric():
-                    
-                    d[v1]%=int(v2)
-                    
-                else:
-                    d[v1]%=d[v2]
-            elif op=="div":
-                v2=v2[0]
-
-                if v2.lstrip('-').isnumeric():
-                    d[v1]//=int(v2)
-                    
-                else:
-                    d[v1]//=d[v2]
-            elif op=="eql":
-                v2=v2[0]
-
-                if v2.lstrip('-').isnumeric():
-                    d[v1]= 1 if d[v1]==int(v2) else 0
-                else:
-                    d[v1]= 1 if d[v1]==d[v2] else 0 
+                    value=d[v2]
+            
+                if op=="mul":
+                    d[v1]*=value
+                elif op=="add":
+                    d[v1]+=value
+                elif op=="mod":        
+                    d[v1]%=value
+                elif op=="div":
+                    d[v1]//=value
+                elif op=="eql":
+                    d[v1]= 1 if d[v1]==value else 0
         
-        if d["z"]==1:
-            return True,jj
+        if d["z"]==0:
+            return True,str(jj)
     return False,None
 def part1(v):
-    return runprog("0",0)
+    return runprog(0,1)
 
+
+@functools.lru_cache(maxsize=None)
+def runprog2(mp,starti):
+    for jj in range(1,10):
+        d=dict()    
+        d['x']=0
+        d['y']=0
+        d['z']=mp
+        d['w']=jj
+        for i,j in enumerate(lines[starti:]):
+            op, v1,*v2 = j.split()
+            if op=="inp":
+                b, st2 =runprog(d['z'],starti+i+1)
+                if b:
+                    return True,str(jj)+st2
+                break
+            else:
+                v2=v2[0]
+                if v2.lstrip('-').isnumeric():
+                    value=int(v2)
+                else:
+                    value=d[v2]
+            
+                if op=="mul":
+                    d[v1]*=value
+                elif op=="add":
+                    d[v1]+=value
+                elif op=="mod":        
+                    d[v1]%=value
+                elif op=="div":
+                    d[v1]//=value
+                elif op=="eql":
+                    d[v1]= 1 if d[v1]==value else 0
+        
+        if d["z"]==0:
+            return True,str(jj)
+    return False,None
 def part2(v):
-    return 0
+    return runprog2(0,1)
 
-print(part1(lines))
+# print(part1(lines))
 print(part2(lines))
