@@ -1,17 +1,54 @@
 import re
 m= lambda s: re.findall(r'-?\d+',s)
 from collections import Counter
+from collections import deque
 
 with open('data/test/19.test') as f:
     testlines = [  line.strip() for line in f]
 with open('data/my_input/19.in') as f:
     lines = [  line.strip() for line in f]
 
-def euclidian_dist(p,q):
+ROTATIONS2={
+lambda p : (p[0], p[1], p[2]),
+lambda p : (p[0], -p[2], p[1]),
+lambda p : (p[0], -p[1], -p[2]),
+lambda p : (p[0], p[2], -p[1]),
+lambda p : (-p[0], -p[1], p[2]),
+lambda p : (-p[0], -p[2], -p[1]),
+lambda p : (-p[0], p[1], -p[2]),
+lambda p : (-p[0], p[2], p[1]),
+lambda p : (p[1], p[0], -p[2]),
+lambda p : (p[1], -p[0], p[2]),
+lambda p : (p[1], p[2], p[0]),
+lambda p : (p[1], -p[2], -p[0]),
+lambda p : (-p[1], p[0], p[2]),
+lambda p : (-p[1], -p[0], -p[2]),
+lambda p : (-p[1], -p[2], p[0]),
+lambda p : (-p[1], p[2], -p[0]),
+lambda p : (p[2], p[0], p[1]),
+lambda p : (p[2], -p[0], -p[1]),
+lambda p : (p[2], -p[1], p[0]),
+lambda p : (p[2], p[1], -p[0]),
+lambda p : (-p[2], p[0], -p[1]),
+lambda p : (-p[2], -p[0], p[1]),
+lambda p : (-p[2], p[1], p[0]),
+lambda p : (-p[2], -p[1], -p[0])
+}
+
+def man_dist(p,q):
     x,y,z=p
     xx,yy,zz=q
-    return (x-xx)**2+(y-yy)**2+(z-zz)**2
+    return abs(x-xx)+abs(y-yy)+abs(z-zz)
 
+def move(b,p):
+    x,y,z=p
+    return [ (x+xx,y+yy,z+zz) for _,(xx,yy,zz) in enumerate(b)]
+
+def test_beacon(a,b):
+    result=Counter((xx - x, yy - y, zz - z) for (x,y,z) in a for (xx,yy,zz) in b ).most_common(1)
+    if result[0][1]>=12 :
+        return result[0][0],move(a,result[0][0])
+    return None,None
 def part1(v):
     list_beacons=[]
     sli=[]
@@ -22,38 +59,31 @@ def part1(v):
         elif len(nums)==0:
             list_beacons.append(sli)
         else:
-            sli.append(list(map(int,nums)))
+            sli.append(tuple(map(int,nums)))
     list_beacons.append(sli)
+    
+    first=set(list_beacons[0])
+    queue=deque()
+    for _ , i in enumerate(list_beacons[1:]):
+        queue.append(i)
 
-    metadict=dict()
-    for index,beacon in enumerate(list_beacons):
-        d=dict()
-        for i,j in enumerate(beacon):
-            for ii,jj in enumerate(beacon):
-                d[(i,ii)]=euclidian_dist(j, jj)
-        metadict[index]=d
+    scanners=[(0,0,0)]
+    while queue :
+        found=False
+        testbeacon=queue.popleft()
+        for _, j in enumerate(ROTATIONS2):
+            newbeacon= list(map(j,testbeacon))
+            scannerpos, newcoordinates=test_beacon(newbeacon,first)
 
-    possible_match=[]
-    for k,v in metadict.items():
-        for kk,vv in metadict.items():
-            if k>=kk:
-                continue
-            set1=(set([(k,v) for k,v in Counter(v.values()).items()]))
-            set2=(set([(k,v) for k,v in Counter(vv.values()).items()]))
-            # print(k,kk,len(set1&set2))
+            if scannerpos:
+                first|=set(newcoordinates)
+                scanners.append(scannerpos)
+                found=True
+                break
+        if not found:
+            queue.append(testbeacon)
+    return len(first) ,max([man_dist(p, q) for _,p in enumerate(scanners) for _,q in enumerate(scanners)])
 
-            if len(set1&set2)>=66:
-                possible_match.append((k,kk))
-    print(possible_match)
-            
-    # print(metadict)
-    # print(len(list_beacons))
-    return 0
-
-def part2(v):
-    return 0
 
 print("part1 test output",part1(testlines))
-# print("part1 my output",part1(lines))
-# print("part2 test output",part2(testlines))
-# print("part2 my output",part2(lines))
+print("part1 my output",part1(lines))
